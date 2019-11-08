@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { Flight } from '../model/flight';
+import { Flight } from '../../model/flight';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { FlightService, DummyFlightService } from './flight.service';
 
 @Component({
   selector: 'flight-search',
   templateUrl: './flight-search.component.html',
-  styleUrls: ['./flight-search.component.css']
+  styleUrls: ['./flight-search.component.css'],
+  providers: [
+    // { provide: FlightService, useClass: DummyFlightService }
+  ]
 })
 export class FlightSearchComponent implements OnInit {
 
@@ -13,10 +17,14 @@ export class FlightSearchComponent implements OnInit {
   from: string;
   to: string;
   selectedFlight: Flight;
+  basket: object = {
+    "3": true,
+    "5": true
+  };
 
   //private http: HttpClient;
 
-  constructor(private http: HttpClient) { 
+  constructor(private flightService: FlightService) { 
     // this.http = http;
   }
 
@@ -30,16 +38,11 @@ export class FlightSearchComponent implements OnInit {
     //   { id: 19, from: 'München', to: 'Hamburg', date: '2019-11-08T19:45+01:00', delayed: true},
     // ];
 
-    if (this.from === 'BER' || this.to === 'BER') {
-      throw new Error('Flughafen wird derzeit nicht angeflogen!');
-      
-    }
+    // if (this.from === 'BER' || this.to === 'BER') {
+    //   throw new Error('Flughafen wird derzeit nicht angeflogen!');
 
-    const url = 'http://www.angular.at/api/flight';
-    const params = new HttpParams().set('from', this.from).set('to', this.to);
-    const headers = new HttpHeaders().set('Accepted', 'application/json');
-
-    this.http.get<Flight[]>(url, { params, headers }).subscribe(
+    // }
+    this.flightService.find(this.from, this.to).subscribe(
       flights => {
         this.flights = flights;
       },
